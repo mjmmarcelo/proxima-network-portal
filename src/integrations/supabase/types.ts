@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      stations: {
+        Row: {
+          abertura: string
+          ano: string
+          cnpj: string
+          cod_ibge: string
+          created_at: string
+          endereco: string
+          id: string
+          lat: string
+          long: string
+          numestacao: string
+        }
+        Insert: {
+          abertura: string
+          ano: string
+          cnpj: string
+          cod_ibge: string
+          created_at?: string
+          endereco: string
+          id?: string
+          lat: string
+          long: string
+          numestacao: string
+        }
+        Update: {
+          abertura?: string
+          ano?: string
+          cnpj?: string
+          cod_ibge?: string
+          created_at?: string
+          endereco?: string
+          id?: string
+          lat?: string
+          long?: string
+          numestacao?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
