@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      links: {
+        Row: {
+          ano: string
+          cnpj: string
+          created_at: string
+          enlaces_proprios_terrestres_c_nominal: string
+          enlaces_proprios_terrestres_id: string
+          enlaces_proprios_terrestres_meio: string
+          enlaces_proprios_terrestres_swap: string
+          estacao_a_id: string
+          estacao_b_id: string
+          geometria_wkt: string
+          id: string
+          srid: string
+        }
+        Insert: {
+          ano: string
+          cnpj: string
+          created_at?: string
+          enlaces_proprios_terrestres_c_nominal: string
+          enlaces_proprios_terrestres_id: string
+          enlaces_proprios_terrestres_meio: string
+          enlaces_proprios_terrestres_swap: string
+          estacao_a_id: string
+          estacao_b_id: string
+          geometria_wkt: string
+          id?: string
+          srid: string
+        }
+        Update: {
+          ano?: string
+          cnpj?: string
+          created_at?: string
+          enlaces_proprios_terrestres_c_nominal?: string
+          enlaces_proprios_terrestres_id?: string
+          enlaces_proprios_terrestres_meio?: string
+          enlaces_proprios_terrestres_swap?: string
+          estacao_a_id?: string
+          estacao_b_id?: string
+          geometria_wkt?: string
+          id?: string
+          srid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_estacao_a"
+            columns: ["estacao_a_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_estacao_b"
+            columns: ["estacao_b_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "links_estacao_a_id_fkey"
+            columns: ["estacao_a_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "links_estacao_b_id_fkey"
+            columns: ["estacao_b_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stations: {
         Row: {
           abertura: string

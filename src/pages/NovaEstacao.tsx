@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   cnpj: z.string().min(14, "CNPJ deve ter 14 dígitos"),
@@ -27,6 +28,8 @@ const formSchema = z.object({
 });
 
 const NovaEstacao = () => {
+  const navigate = useNavigate();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,10 +44,18 @@ const NovaEstacao = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // TODO: Implementar integração com backend
-    console.log(values);
-    toast.success("Estação cadastrada com sucesso!");
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const { data, error } = await supabase.from("stations").insert([values]);
+      
+      if (error) throw error;
+      
+      toast.success("Estação cadastrada com sucesso!");
+      navigate("/estacoes");
+    } catch (error) {
+      console.error("Erro ao cadastrar estação:", error);
+      toast.error("Erro ao cadastrar estação. Por favor, tente novamente.");
+    }
   };
 
   return (
@@ -109,7 +120,12 @@ const NovaEstacao = () => {
                   <FormItem>
                     <FormLabel>Latitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" placeholder="Digite a latitude" {...field} />
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="Digite a latitude"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,7 +139,12 @@ const NovaEstacao = () => {
                   <FormItem>
                     <FormLabel>Longitude</FormLabel>
                     <FormControl>
-                      <Input type="number" step="any" placeholder="Digite a longitude" {...field} />
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="Digite a longitude"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
