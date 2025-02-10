@@ -59,7 +59,7 @@ export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange }) => {
     const data = draw.current.getAll();
     if (data.features.length > 0) {
       const coordinates = data.features[0].geometry.coordinates;
-      const wkt = `LINESTRING(${coordinates.map(coord => `${coord[0]} ${coord[1]}`).join(', ')})`;
+      const wkt = `LINESTRING(${coordinates.map(coord => `${coord[0]} ${coord[1]}`).join(',')})`;
       onPathChange(wkt);
     }
   };

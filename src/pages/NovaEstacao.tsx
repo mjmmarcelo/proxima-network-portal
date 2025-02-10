@@ -46,7 +46,11 @@ const NovaEstacao = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { data, error } = await supabase.from("stations").insert([values]);
+      const { error } = await supabase
+        .from("stations")
+        .insert({
+          ...values
+        });
       
       if (error) throw error;
       
@@ -54,7 +58,7 @@ const NovaEstacao = () => {
       navigate("/estacoes");
     } catch (error) {
       console.error("Erro ao cadastrar estação:", error);
-      toast.error("Erro ao cadastrar estação. Por favor, tente novamente.");
+      toast.error("Erro ao cadastrar estação");
     }
   };
 
@@ -62,9 +66,14 @@ const NovaEstacao = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Nova Estação</h1>
-        <Link to="/estacoes">
-          <Button variant="outline">Voltar</Button>
-        </Link>
+        <div className="space-x-4">
+          <Link to="/estacoes">
+            <Button variant="outline">Voltar</Button>
+          </Link>
+          <Link to="/">
+            <Button variant="outline">Início</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="glass-card p-6 rounded-lg">

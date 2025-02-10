@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -52,6 +52,7 @@ const fetchStations = async () => {
 };
 
 const NovoEnlace = () => {
+  const navigate = useNavigate();
   const [wktPath, setWktPath] = useState("");
   
   const { data: stations, isLoading: isLoadingStations } = useQuery({
@@ -79,14 +80,15 @@ const NovoEnlace = () => {
     try {
       const { error } = await supabase
         .from("links")
-        .insert([{
+        .insert({
           ...values,
           geometria_wkt: wktPath || values.geometria_wkt,
-        }]);
+        });
 
       if (error) throw error;
       
       toast.success("Enlace cadastrado com sucesso!");
+      navigate("/enlaces");
     } catch (error) {
       console.error("Erro ao cadastrar enlace:", error);
       toast.error("Erro ao cadastrar enlace");
@@ -97,9 +99,14 @@ const NovoEnlace = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-secondary">Novo Enlace</h1>
-        <Link to="/enlaces">
-          <Button variant="outline">Voltar</Button>
-        </Link>
+        <div className="space-x-4">
+          <Link to="/enlaces">
+            <Button variant="outline">Voltar</Button>
+          </Link>
+          <Link to="/">
+            <Button variant="outline">Início</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="glass-card p-6 rounded-lg">
