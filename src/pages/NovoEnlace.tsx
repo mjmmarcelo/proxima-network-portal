@@ -21,6 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { MapDrawPath } from "@/components/MapDrawPath";
+import { useState } from "react";
 
 const formSchema = z.object({
   cnpj: z.string().min(14, "CNPJ deve ter 14 dígitos"),
@@ -37,13 +41,23 @@ const formSchema = z.object({
   srid: z.string().min(1, "SRID é obrigatório"),
 });
 
+const fetchStations = async () => {
+  const { data, error } = await supabase
+    .from("stations")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
 const NovoEnlace = () => {
-  // TODO: Replace with actual stations data from backend
-  const mockStations = [
-    { id: "1", nome: "Estação 1" },
-    { id: "2", nome: "Estação 2" },
-    { id: "3", nome: "Estação 3" },
-  ];
+  const [wktPath, setWktPath] = useState("");
+  
+  const { data: stations, isLoading: isLoadingStations } = useQuery({
+    queryKey: ["stations"],
+    queryFn: fetchStations,
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,14 +71,26 @@ const NovoEnlace = () => {
       enlaces_proprios_terrestres_c_nominal: "",
       enlaces_proprios_terrestres_swap: "",
       geometria_wkt: "",
-      srid: "",
+      srid: "4326", // SRID padrão para coordenadas geográficas
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // TODO: Implementar integração com backend
-    console.log(values);
-    toast.success("Enlace cadastrado com sucesso!");
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const { error } = await supabase
+        .from("links")
+        .insert([{
+          ...values,
+          geometria_wkt: wktPath || values.geometria_wkt,
+        }]);
+
+      if (error) throw error;
+      
+      toast.success("Enlace cadastrado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao cadastrar enlace:", error);
+      toast.error("Erro ao cadastrar enlace");
+    }
   };
 
   return (
@@ -121,9 +147,9 @@ const NovoEnlace = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockStations.map((station) => (
+                        {stations?.map((station) => (
                           <SelectItem key={station.id} value={station.id}>
-                            {station.nome}
+                            {`${station.numestacao} - ${station.endereco}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -146,9 +172,9 @@ const NovoEnlace = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockStations.map((station) => (
+                        {stations?.map((station) => (
                           <SelectItem key={station.id} value={station.id}>
-                            {station.nome}
+                            {`${station.numestacao} - ${station.endereco}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -222,7 +248,9 @@ const NovoEnlace = () => {
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="w-full space-y-4">
               <FormField
                 control={form.control}
                 name="geometria_wkt"
@@ -230,7 +258,20 @@ const NovoEnlace = () => {
                   <FormItem>
                     <FormLabel>Geometria WKT</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite a geometria WKT" {...field} />
+                      <div className="space-y-4">
+                        <Input 
+                          placeholder="Digite a geometria WKT ou use o mapa abaixo" 
+                          {...field}
+                          value={wktPath || field.value}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setWktPath(e.target.value);
+                          }}
+                        />
+                        <div className="h-[400px] w-full rounded-lg overflow-hidden border">
+                          <MapDrawPath onPathChange={setWktPath} />
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
