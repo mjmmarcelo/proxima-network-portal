@@ -31,9 +31,14 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const EnlaceForm = () => {
+interface EnlaceFormProps {
+  initialData?: any;
+  mode?: 'create' | 'edit';
+}
+
+export const EnlaceForm = ({ initialData, mode = 'create' }: EnlaceFormProps) => {
   const navigate = useNavigate();
-  const [wktPath, setWktPath] = useState("");
+  const [wktPath, setWktPath] = useState(initialData?.geometria_wkt || "");
   
   const { data: stations, isLoading: isLoadingStations } = useQuery({
     queryKey: ["stations"],
@@ -51,16 +56,16 @@ export const EnlaceForm = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cnpj: "",
-      ano: new Date().getFullYear().toString(),
-      estacao_a_id: "",
-      estacao_b_id: "",
-      enlaces_proprios_terrestres_id: "",
-      enlaces_proprios_terrestres_meio: "FIBRA",
-      enlaces_proprios_terrestres_c_nominal: "",
-      enlaces_proprios_terrestres_swap: "",
-      geometria_wkt: "",
-      srid: "4326",
+      cnpj: initialData?.cnpj || "",
+      ano: initialData?.ano || new Date().getFullYear().toString(),
+      estacao_a_id: initialData?.estacao_a_id || "",
+      estacao_b_id: initialData?.estacao_b_id || "",
+      enlaces_proprios_terrestres_id: initialData?.enlaces_proprios_terrestres_id || "",
+      enlaces_proprios_terrestres_meio: initialData?.enlaces_proprios_terrestres_meio || "FIBRA",
+      enlaces_proprios_terrestres_c_nominal: initialData?.enlaces_proprios_terrestres_c_nominal || "",
+      enlaces_proprios_terrestres_swap: initialData?.enlaces_proprios_terrestres_swap || "",
+      geometria_wkt: initialData?.geometria_wkt || "",
+      srid: initialData?.srid || "4326",
     },
   });
 
@@ -79,17 +84,27 @@ export const EnlaceForm = () => {
         srid: values.srid,
       };
 
-      const { error } = await supabase
-        .from("links")
-        .insert(insertData);
+      if (mode === 'edit' && initialData?.id) {
+        const { error } = await supabase
+          .from("links")
+          .update(insertData)
+          .eq('id', initialData.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success("Enlace atualizado com sucesso!");
+      } else {
+        const { error } = await supabase
+          .from("links")
+          .insert(insertData);
+
+        if (error) throw error;
+        toast.success("Enlace cadastrado com sucesso!");
+      }
       
-      toast.success("Enlace cadastrado com sucesso!");
       navigate("/enlaces");
     } catch (error) {
-      console.error("Erro ao cadastrar enlace:", error);
-      toast.error("Erro ao cadastrar enlace");
+      console.error("Erro ao salvar enlace:", error);
+      toast.error(`Erro ao ${mode === 'edit' ? 'atualizar' : 'cadastrar'} enlace`);
     }
   };
 
@@ -114,7 +129,7 @@ export const EnlaceForm = () => {
 
         <div className="flex justify-end space-x-4">
           <Button type="submit" className="bg-secondary hover:bg-secondary/90">
-            Cadastrar Enlace
+            {mode === 'edit' ? 'Atualizar' : 'Cadastrar'} Enlace
           </Button>
         </div>
       </form>

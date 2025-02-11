@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,8 +33,43 @@ const Enlaces = () => {
   });
 
   const exportToCSV = () => {
-    // TODO: Implement CSV export
-    console.log("Exportando para CSV...");
+    if (!enlaces) return;
+
+    const headers = [
+      "CNPJ",
+      "Ano",
+      "Estação A",
+      "Estação B",
+      "ID Enlace",
+      "Meio",
+      "Cap. Nominal",
+      "SWAP",
+    ];
+
+    const csvData = enlaces.map((enlace) => [
+      enlace.cnpj,
+      enlace.ano,
+      enlace.estacao_a?.numestacao,
+      enlace.estacao_b?.numestacao,
+      enlace.enlaces_proprios_terrestres_id,
+      enlace.enlaces_proprios_terrestres_meio,
+      enlace.enlaces_proprios_terrestres_c_nominal,
+      enlace.enlaces_proprios_terrestres_swap,
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `enlaces_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
