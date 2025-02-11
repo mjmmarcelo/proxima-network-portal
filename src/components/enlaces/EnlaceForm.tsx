@@ -3,28 +3,16 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapDrawPath } from "@/components/MapDrawPath";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BasicInfoFields } from "./BasicInfoFields";
+import { StationFields } from "./StationFields";
+import { LinkDetailsFields } from "./LinkDetailsFields";
+import { GeometryFields } from "./GeometryFields";
 
 const formSchema = z.object({
   cnpj: z.string().min(14, "CNPJ deve ter 14 dígitos"),
