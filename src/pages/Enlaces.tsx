@@ -77,6 +77,9 @@ const Enlaces = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-secondary">Enlaces</h1>
         <div className="space-x-4">
+          <Link to="/">
+            <Button variant="outline">Início</Button>
+          </Link>
           <Link to="/enlaces/novo">
             <Button variant="outline">Novo Enlace</Button>
           </Link>
