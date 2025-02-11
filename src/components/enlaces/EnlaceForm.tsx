@@ -56,7 +56,7 @@ export const EnlaceForm = () => {
       estacao_a_id: "",
       estacao_b_id: "",
       enlaces_proprios_terrestres_id: "",
-      enlaces_proprios_terrestres_meio: undefined,
+      enlaces_proprios_terrestres_meio: "FIBRA",
       enlaces_proprios_terrestres_c_nominal: "",
       enlaces_proprios_terrestres_swap: "",
       geometria_wkt: "",
@@ -66,12 +66,22 @@ export const EnlaceForm = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
+      const insertData = {
+        ano: values.ano,
+        cnpj: values.cnpj,
+        estacao_a_id: values.estacao_a_id,
+        estacao_b_id: values.estacao_b_id,
+        enlaces_proprios_terrestres_id: values.enlaces_proprios_terrestres_id,
+        enlaces_proprios_terrestres_meio: values.enlaces_proprios_terrestres_meio,
+        enlaces_proprios_terrestres_c_nominal: values.enlaces_proprios_terrestres_c_nominal,
+        enlaces_proprios_terrestres_swap: values.enlaces_proprios_terrestres_swap,
+        geometria_wkt: wktPath || values.geometria_wkt,
+        srid: values.srid,
+      };
+
       const { error } = await supabase
         .from("links")
-        .insert({
-          ...values,
-          geometria_wkt: wktPath || values.geometria_wkt,
-        });
+        .insert(insertData);
 
       if (error) throw error;
       
@@ -82,6 +92,10 @@ export const EnlaceForm = () => {
       toast.error("Erro ao cadastrar enlace");
     }
   };
+
+  if (isLoadingStations) {
+    return <div>Carregando estações...</div>;
+  }
 
   return (
     <Form {...form}>
