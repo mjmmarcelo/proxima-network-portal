@@ -31,7 +31,10 @@ export const GeometryFields = ({ form, wktPath, setWktPath }: GeometryFieldsProp
                   }}
                 />
                 <div className="h-[400px] w-full rounded-lg overflow-hidden border">
-                  <MapDrawPath onPathChange={setWktPath} />
+                  <MapDrawPath 
+                    onPathChange={setWktPath} 
+                    initialWkt={field.value || wktPath}
+                  />
                 </div>
               </div>
             </FormControl>

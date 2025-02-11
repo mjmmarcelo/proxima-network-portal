@@ -7,9 +7,10 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 interface MapDrawPathProps {
   onPathChange: (wkt: string) => void;
+  initialWkt?: string;
 }
 
-export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange }) => {
+export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange, initialWkt }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const draw = useRef<MapboxDraw | null>(null);
@@ -19,6 +20,26 @@ export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange }) => {
     // Aqui você deve inserir seu token do Mapbox
     setTemporaryToken('COLOQUE_SEU_TOKEN_AQUI');
   }, []);
+
+  // Função para converter WKT para GeoJSON
+  const wktToGeoJSON = (wkt: string) => {
+    if (!wkt.startsWith('LINESTRING')) return null;
+    
+    const coordinates = wkt
+      .replace('LINESTRING(', '')
+      .replace(')', '')
+      .split(',')
+      .map(pair => pair.trim().split(' ').map(Number));
+
+    return {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: coordinates
+      }
+    };
+  };
 
   useEffect(() => {
     if (!mapContainer.current || !temporaryToken) return;
@@ -46,12 +67,33 @@ export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange }) => {
     map.current.on('draw.update', updateRoute);
     map.current.on('draw.delete', () => onPathChange(''));
 
+    // Carregar caminho inicial se existir
+    map.current.on('load', () => {
+      if (initialWkt) {
+        const geoJSON = wktToGeoJSON(initialWkt);
+        if (geoJSON && draw.current) {
+          draw.current.add(geoJSON);
+          
+          // Ajustar o mapa para mostrar todo o caminho
+          const coordinates = geoJSON.geometry.coordinates;
+          const bounds = coordinates.reduce((bounds, coord) => {
+            return bounds.extend(coord);
+          }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+          map.current?.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 15
+          });
+        }
+      }
+    });
+
     return () => {
       if (map.current) {
         map.current.remove();
       }
     };
-  }, [temporaryToken]);
+  }, [temporaryToken, initialWkt]);
 
   const updateRoute = () => {
     if (!draw.current) return;
