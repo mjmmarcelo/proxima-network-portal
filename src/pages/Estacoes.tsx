@@ -31,8 +31,43 @@ const Estacoes = () => {
   });
 
   const exportToCSV = () => {
-    // TODO: Implement CSV export
-    console.log("Exportando para CSV...");
+    if (!estacoes) return;
+
+    const headers = [
+      "CNPJ",
+      "Ano",
+      "Número",
+      "Latitude",
+      "Longitude",
+      "Código IBGE",
+      "Endereço",
+      "Data Abertura"
+    ];
+
+    const csvData = estacoes.map((estacao) => [
+      estacao.cnpj,
+      estacao.ano,
+      estacao.numestacao,
+      estacao.lat,
+      estacao.long,
+      estacao.cod_ibge,
+      estacao.endereco,
+      format(new Date(estacao.abertura), "dd/MM/yyyy")
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `estacoes_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -40,6 +75,9 @@ const Estacoes = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-primary">Estações</h1>
         <div className="space-x-4">
+          <Link to="/">
+            <Button variant="outline">Início</Button>
+          </Link>
           <Link to="/estacoes/nova">
             <Button variant="outline">Nova Estação</Button>
           </Link>
