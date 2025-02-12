@@ -13,6 +13,7 @@ import NovoEnlace from "./pages/NovoEnlace";
 import NovaEstacao from "./pages/NovaEstacao";
 import EditarEstacao from "./pages/EditarEstacao";
 import EditarEnlace from "./pages/EditarEnlace";
+import Auth from "./pages/Auth";
 
 // Move queryClient creation outside of component
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/estacoes" element={<Estacoes />} />
               <Route path="/estacoes/nova" element={<NovaEstacao />} />
               <Route path="/estacoes/editar/:id" element={<EditarEstacao />} />
