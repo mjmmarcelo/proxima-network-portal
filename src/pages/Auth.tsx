@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -69,13 +68,23 @@ export default function Auth() {
         password: values.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === "Email not confirmed") {
+          toast.error("Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.");
+          return;
+        }
+        throw error;
+      }
 
       toast.success("Login realizado com sucesso!");
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no login:", error);
-      toast.error("Erro ao realizar login");
+      if (error.error_description || error.message) {
+        toast.error(error.error_description || error.message);
+      } else {
+        toast.error("Erro ao realizar login");
+      }
     } finally {
       setIsLoading(false);
     }
