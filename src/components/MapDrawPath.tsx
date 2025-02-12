@@ -76,14 +76,22 @@ export const MapDrawPath: React.FC<MapDrawPathProps> = ({ onPathChange, initialW
           
           // Ajustar o mapa para mostrar todo o caminho
           const coordinates = geoJSON.geometry.coordinates;
-          const bounds = coordinates.reduce((bounds, coord) => {
-            return bounds.extend(coord);
-          }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+          if (coordinates.length >= 2) {
+            const bounds = new mapboxgl.LngLatBounds(
+              coordinates[0] as [number, number],
+              coordinates[0] as [number, number]
+            );
+            
+            // Extend the bounds with all coordinates
+            coordinates.forEach((coord) => {
+              bounds.extend(coord as [number, number]);
+            });
 
-          map.current?.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15
-          });
+            map.current?.fitBounds(bounds, {
+              padding: 50,
+              maxZoom: 15
+            });
+          }
         }
       }
     });

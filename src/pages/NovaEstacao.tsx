@@ -46,11 +46,21 @@ const NovaEstacao = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // Garantir que todos os campos necessários estão presentes
+      const stationData = {
+        cnpj: values.cnpj,
+        ano: values.ano,
+        numestacao: values.numestacao,
+        lat: values.lat,
+        long: values.long,
+        cod_ibge: values.cod_ibge,
+        endereco: values.endereco,
+        abertura: values.abertura
+      };
+
       const { error } = await supabase
         .from("stations")
-        .insert({
-          ...values
-        });
+        .insert(stationData);
       
       if (error) throw error;
       
